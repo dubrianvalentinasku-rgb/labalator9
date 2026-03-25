@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeTeen PRO — Образовательная платформа</title>
+<style>
+/* Базовые настройки */
+* { box-sizing: border-box; }
+
+body { 
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin:0; 
+    min-height:100vh; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    padding: 20px;
+}
+
+.container { max-width:500px; width:100%; }
+
+.card { 
+    background:white; 
+    padding:30px; 
+    border-radius:24px; 
+    box-shadow:0 15px 35px rgba(0,0,0,0.3); 
+    text-align:center; 
+    margin-bottom:15px;
+    width: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden { display:none; }
+
+/* Приветствие */
+.welcome-title { font-size: 28px; color: #4b3074; margin-bottom: 10px; font-weight: 800; }
+.welcome-text { color: #666; line-height: 1.6; margin-bottom: 25px; font-size: 15px; }
+
+/* Прогресс-бар */
+.progress-container {
+    background: #eee;
+    border-radius: 10px;
+    height: 12px;
+    width: 100%;
+    margin: 15px 0;
+    overflow: hidden;
+}
+.progress-fill {
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    height: 100%;
+    width: 0%;
+    transition: width 0.8s ease-in-out;
+}
+.progress-text { font-weight: bold; color: #2ecc71; font-size: 18px; }
+
+/* Поля ввода */
+input { 
+    width:100%; padding:14px; margin:10px 0; border-radius:12px; 
+    border:2px solid #eee; font-size: 16px; transition: 0.3s;
+}
+input:focus { border-color: #667eea; outline: none; }
+.input-error { border-color: #f44336 !important; background-color: #fff8f8; animation: shake 0.4s; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* Кнопки */
+button { 
+    width:100%; padding:16px; margin-top:10px; border:none; border-radius:14px; 
+    background:linear-gradient(135deg,#667eea,#764ba2); color:white; 
+    cursor:pointer; font-size: 16px; font-weight: 600; transition: 0.3s;
+}
+button:hover { filter: brightness(1.1); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+button:active { transform: scale(0.98); }
+
+.secondary-btn { background: #f0f2f5 !important; color: #555 !important; }
+.correct { background:#4CAF50 !important; }
+.wrong { background:#f44336 !important; }
+.selected { background:#FFD700 !important; color:black; }
+.cert-btn { background: #2ecc71 !important; }
+
+/* Видео */
+.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 15px; }
+iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+#achievementsList { text-align: left; margin-top: 15px; }
+.achievement-item { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #2ecc71; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="welcomeDiv" class="card">
+        <div style="font-size: 50px; margin-bottom: 10px;">🚀</div>
+        <div class="welcome-title">CodeTeen PRO</div>
+        <p class="welcome-text">Изучай разработку через практику, смотри видео-лекции и собирай достижения в своем портфолио!</p>
+        <button onclick="showRegister()">Начать обучение бесплатно</button>
+        <button class="secondary-btn" onclick="showLogin()">У меня уже есть аккаунт</button>
+    </div>
+
+    <div id="registerDiv" class="card hidden">
+      <h2>Создать аккаунт</h2>
+      <input id="regLogin" placeholder="Придумайте логин">
+      <input id="regPass" type="password" placeholder="Придумайте пароль">
+      <button onclick="register()">Зарегистрироваться</button>
+      <button style="background:none; color:#764ba2;" onclick="showLogin()">Уже есть аккаунт? Войти</button>
+    </div>
+
+    <div id="loginDiv" class="card hidden">
+      <h2>Вход в систему</h2>
+      <input id="loginUser" placeholder="Логин">
+      <input id="loginPass" type="password" placeholder="Пароль">
+      <button onclick="login()">Войти</button>
+      <button style="background:none; color:#764ba2;" onclick="showRegister()">Создать аккаунт</button>
+    </div>
+
+    <div id="profile" class="card hidden">
+      <h2 id="welcome"></h2>
+      <button onclick="openCourses()">📦 Перейти к курсам</button>
+      <button style="background:#6c5ce7; color:white;" onclick="showPortfolio()">🏆 Моё Портфолио</button>
+      <button class="secondary-btn" onclick="logout()">Выйти</button>
+    </div>
+
+    <div id="portfolio" class="card hidden">
+      <h2>Ваш прогресс: <span id="progressPercent" class="progress-text">0%</span></h2>
+      <div class="progress-container">
+          <div id="progressBar" class="progress-fill"></div>
+      </div>
+      <div id="achievementsList"></div>
+      <button class="secondary-btn" onclick="showProfile()">Назад в профиль</button>
+    </div>
+
+    <div id="courses" class="card hidden">
+      <h2>Выберите модуль</h2>
+      <button onclick="openLesson(1)">1. HTML Fundamentals</button>
+      <button onclick="openLesson(2)">2. CSS Styling PRO</button>
+      <button onclick="openLesson(3)">3. JavaScript Logic</button>
+      <button class="secondary-btn" onclick="backToProfile()">В профиль</button>
+    </div>
+
+    <div id="lesson" class="card hidden">
+      <h2 id="lessonTitle"></h2>
+      <div class="video-container">
+        <iframe id="video" allowfullscreen></iframe>
+      </div>
+      <button onclick="startTest()">Пройти финальный тест</button>
+      <button class="secondary-btn" onclick="back()">К списку курсов</button>
+    </div>
+
+    <div id="test" class="card hidden">
+      <h2>Тестирование</h2>
+      <div id="questions"></div>
+      <button onclick="showResult()">Проверить ответы</button>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+let user = null;
+let currentLesson = 1;
+let userAnswers = [];
+
+const lessons = {
+  1: { title:"HTML Fundamentals", video:"https://www.youtube.com/embed/UB1O30fR-EE" },
+  2: { title:"CSS Styling PRO", video:"https://www.youtube.com/embed/yfoY53QXEnI" },
+  3: { title:"JavaScript Logic", video:"https://www.youtube.com/embed/W6NZfCO5SIk" }
+};
+
+const totalLessonsCount = Object.keys(lessons).length;
+
+const tests = {
+  1: [{ q:"HTML — это?", a:["Язык разметки","Язык программирования"], correct:0 }, { q:"Тег заголовка уровня 1?", a:["<h6>","<h1>"], correct:1 }],
+  2: [{ q:"Цвет текста в CSS?", a:["color","background"], correct:0 }, { q:"Жирный текст?", a:["font-weight: bold","text-bold"], correct:0 }],
+  3: [{ q:"Переменная в JS?", a:["var","const / let"], correct:1 }, { q:"Создать функцию?", a:["function","def"], correct:0 }]
+};
+
+function hideAll(){ document.querySelectorAll('.card').forEach(el=>el.classList.add('hidden')); }
+function showRegister(){ hideAll(); document.getElementById("registerDiv").classList.remove("hidden"); }
+function showLogin(){ hideAll(); document.getElementById("loginDiv").classList.remove("hidden"); }
+function showProfile(){ hideAll(); document.getElementById("profile").classList.remove("hidden"); document.getElementById("welcome").innerText="Рады видеть, "+user+"!"; }
+
+// Логика прогресса
+function calculateTotalProgress() {
+    const userData = JSON.parse(localStorage.getItem(user + "_data")) || { completed: [] };
+    const completedCount = userData.completed.length;
+    return Math.round((completedCount / totalLessonsCount) * 100);
+}
+
+function saveProgress(courseTitle) {
+    let userData = JSON.parse(localStorage.getItem(user + "_data")) || { completed: [] };
+    if (!userData.completed.some(item => item.title === courseTitle)) {
+        userData.completed.push({ title: courseTitle, date: new Date().toLocaleDateString() });
+        localStorage.setItem(user + "_data", JSON.stringify(userData));
+    }
+}
+
+function showPortfolio() {
+    hideAll();
+    const list = document.getElementById("achievementsList");
+    const bar = document.getElementById("progressBar");
+    const percentText = document.getElementById("progressPercent");
+    
+    document.getElementById("portfolio").classList.remove("hidden");
+    list.innerHTML = "";
+    
+    // Обновляем визуальный прогресс
+    const progress = calculateTotalProgress();
+    percentText.innerText = progress + "%";
+    bar.style.width = progress + "%";
+
+    const userData = JSON.parse(localStorage.getItem(user + "_data"));
+    if (!userData || userData.completed.length === 0) {
+        list.innerHTML = "<p style='color:#888; text-align:center;'>У вас пока нет достижений.</p>";
+    } else {
+        userData.completed.forEach(item => {
+            let div = document.createElement("div");
+            div.className = "achievement-item";
+            div.innerHTML = `<strong>${item.title}</strong><br><small>${item.date}</small>
+                <button style="padding:8px; font-size:12px; margin-top:10px; background:#2ecc71" 
+                onclick="generateCertificate('${item.title}')">Скачать PDF</button>`;
+            list.appendChild(div);
+        });
+    }
+}
+
+// Аккаунты
+function register(){
+  const login = document.getElementById("regLogin").value.trim();
+  const pass = document.getElementById("regPass").value.trim();
+  if(!login || !pass) return alert("Заполните поля");
+  if(localStorage.getItem(login)) return alert("Логин занят");
+  localStorage.setItem(login, pass);
+  localStorage.setItem(login + "_data", JSON.stringify({ completed: [] }));
+  alert("Успешно!"); showLogin();
+}
+
+function login(){
+  const logInput = document.getElementById("loginUser");
+  const passInput = document.getElementById("loginPass");
+  const savedPass = localStorage.getItem(logInput.value.trim());
+  if(!savedPass || savedPass !== passInput.value.trim()) {
+    logInput.classList.add("input-error"); passInput.classList.add("input-error");
+    return alert("Ошибка входа!");
+  }
+  user = logInput.value.trim(); showProfile();
+}
+
+function logout(){ user=null; hideAll(); document.getElementById("welcomeDiv").classList.remove("hidden"); }
+
+// Обучение
+function openLesson(id){ currentLesson=id; hideAll(); document.getElementById("lesson").classList.remove("hidden"); document.getElementById("lessonTitle").innerText=lessons[id].title; document.getElementById("video").src=lessons[id].video; }
+function openCourses(){ hideAll(); document.getElementById("courses").classList.remove("hidden"); }
+function backToProfile(){ showProfile(); }
+function back(){ openCourses(); }
+
+function startTest(){
+  userAnswers=[]; hideAll(); document.getElementById("test").classList.remove("hidden");
+  const container=document.getElementById("questions"); container.innerHTML="";
+  tests[currentLesson].forEach((item,index)=>{
+    let div=document.createElement("div"); div.style.paddingBottom = "15px";
+    div.innerHTML=`<p><strong>${index+1}. ${item.q}</strong></p>`;
+    item.a.forEach((ans,i)=>{
+      let btn=document.createElement("button"); btn.innerText=ans; btn.className="secondary-btn";
+      btn.onclick=()=> { 
+          Array.from(div.querySelectorAll("button")).forEach(b=>{ b.classList.remove("selected"); b.style.background="#f0f2f5"; });
+          btn.classList.add("selected"); btn.style.background="#FFD700"; userAnswers[index]=i; 
+      };
+      div.appendChild(btn);
+    });
+    container.appendChild(div);
+  });
+}
+
+function showResult(){
+  const container=document.getElementById("questions");
+  let score = 0;
+  container.querySelectorAll("div").forEach((div,index)=>{
+    if(!tests[currentLesson][index]) return;
+    const correct=tests[currentLesson][index].correct;
+    if(userAnswers[index]===correct) score++;
+    const buttons = div.querySelectorAll("button");
+    if(userAnswers[index]!=null && userAnswers[index]!==correct) buttons[userAnswers[index]].classList.add("wrong");
+    buttons[correct].classList.add("correct");
+    Array.from(buttons).forEach(b=>b.disabled=true);
+  });
+  if (score === tests[currentLesson].length) {
+      saveProgress(lessons[currentLesson].title);
+      let b = document.createElement("button"); b.innerText = "🎓 Получить сертификат"; b.className="cert-btn";
+      b.onclick = () => generateCertificate(lessons[currentLesson].title); container.appendChild(b);
+  }
+  let rb = document.createElement("button"); rb.innerText = "Попробовать снова"; rb.onclick = () => startTest(); container.appendChild(rb);
+  let eb = document.createElement("button"); eb.innerText = "К курсам"; eb.className="secondary-btn"; eb.onclick = () => back(); container.appendChild(eb);
+}
+
+function generateCertificate(courseTitle) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:"landscape", unit:"pt", format:"a4"});
+    const pw = doc.internal.pageSize.getWidth();
+    doc.setDrawColor(102, 126, 234); doc.setLineWidth(15); doc.rect(20, 20, pw-40, 555);
+    doc.setFontSize(50); doc.text("CERTIFICATE", pw/2, 140, {align:"center"});
+    doc.setFontSize(45); doc.text(user.toUpperCase(), pw/2, 270, {align:"center"});
+    doc.setFontSize(28); doc.text(courseTitle, pw/2, 360, {align:"center"});
+    doc.save(`Cert_${user}.pdf`);
+}
+</script>
+
+</body>
+</html>
